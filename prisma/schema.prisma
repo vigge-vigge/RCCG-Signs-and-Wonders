@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Sermon {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  videoUrl    String?
+  audioUrl    String?
+  thumbnailUrl String?
+  date        DateTime
+  speaker     String
+  scripture   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  time        String
+  location    String
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  leader      String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Album {
+  id          Int      @id @default(autoincrement())
+  title       String
+  date        DateTime
+  eventType   String   // 'weekly' or 'special'
+  coverImage  String?
+  photos      Photo[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Photo {
+  id        Int      @id @default(autoincrement())
+  url       String
+  caption   String?
+  albumId   Int
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  type      String   // 'testimony' or 'news'
+  author    String?
+  imageUrl  String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settings {
+  id                String   @id @default(cuid())
+  churchName        String
+  address           String
+  city              String
+  phone             String
+  email             String
+  aboutUs           String
+  vision            String
+  mission           String
+  facebookUrl       String?
+  instagramUrl      String?
+  youtubeUrl        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}

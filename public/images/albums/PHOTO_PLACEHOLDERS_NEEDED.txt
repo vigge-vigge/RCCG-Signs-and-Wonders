@@ -1,0 +1,54 @@
+===============================================
+PHOTO ALBUM FEATURE - IMAGE PLACEHOLDERS
+===============================================
+
+The photo gallery system has been created. Please add the following placeholder images:
+
+ALBUM COVER IMAGES (for the main gallery page):
+Location: c:\code\rccg-signs-and-wonders\public\images\albums\
+
+1. sunday-nov24-cover.jpg - Sunday service photo
+2. thanksgiving-2024-cover.jpg - Thanksgiving service photo  
+3. bible-study-nov20-cover.jpg - Bible study photo
+4. youth-conf-2024-cover.jpg - Youth conference photo
+
+Recommended specs for cover images:
+- Size: 800x600px (landscape orientation)
+- Format: JPG or WebP
+- File size: Under 200KB each
+
+ALBUM DETAIL PHOTOS (for individual album pages):
+Location: c:\code\rccg-signs-and-wonders\public\images\albums\1\
+
+For Album ID 1 (Sunday Service example):
+- photo1.jpg through photo5.jpg
+
+Recommended specs:
+- Size: 1200x800px or similar
+- Format: JPG or WebP  
+- File size: Under 300KB each
+
+===============================================
+ADMIN FEATURES AVAILABLE:
+===============================================
+
+Admins can access photo management at:
+http://localhost:3000/admin/dashboard/photos
+
+Features include:
+- Create new photo albums
+- Organize by date
+- Categorize as "Weekly Service" or "Special Event"
+- Filter and sort albums
+- Upload photos to albums
+
+===============================================
+PUBLIC GALLERY ACCESS:
+===============================================
+
+Users can view the photo gallery at:
+http://localhost:3000/media/photos
+
+The Media page now has a prominent link to the photo gallery.
+
+===============================================

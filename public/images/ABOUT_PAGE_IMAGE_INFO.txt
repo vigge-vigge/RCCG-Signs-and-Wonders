@@ -1,0 +1,18 @@
+ABOUT US PAGE BACKGROUND IMAGE
+==============================
+
+The About Us page currently uses: /images/congregation.jpg
+
+If you want to use a different image for the About page:
+1. Place your image in this folder (e.g., church-interior.jpg, about-hero.jpg)
+2. Update the file path in: app/(public)/about/page.tsx
+3. Change the backgroundImage prop to your new image path
+
+Recommended image specifications:
+- Format: JPG or PNG
+- Size: 1920x1080 or larger
+- Subject: Church interior, worship service, or community gathering
+- The image will have a dark overlay for text readability
+
+Current image path in code:
+backgroundImage="/images/congregation.jpg"

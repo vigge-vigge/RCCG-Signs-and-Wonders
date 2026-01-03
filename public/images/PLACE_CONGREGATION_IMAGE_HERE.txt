@@ -1,0 +1,13 @@
+Save your church congregation photo here as:
+
+congregation.jpg
+
+This image will be used as the hero background on the home page.
+
+Recommended specifications:
+- Dimensions: 1920x1080px or larger
+- Format: JPG or WebP
+- File size: Under 500KB (optimize for web)
+- Filename: congregation.jpg (exactly as shown)
+
+The image will have a dark overlay (60% opacity) to ensure the white text is clearly legible.

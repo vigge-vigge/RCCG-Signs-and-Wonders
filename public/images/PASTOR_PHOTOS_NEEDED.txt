@@ -1,0 +1,36 @@
+===============================================
+PASTOR PHOTOS REQUIRED FOR LEADERS PAGE
+===============================================
+
+Please add the following images to this folder:
+
+1. PASTOR ADEBOYE PHOTO
+   Filename: pastor-adeboye.jpg
+   Subject: Pastor Enoch Adejare Adeboye (General Overseer, RCCG Worldwide)
+   Recommended specs:
+   - Size: 800x1000px (portrait orientation)
+   - Format: JPG or WebP
+   - File size: Under 300KB
+   - Quality: High resolution, professional photo
+   - Style: Formal pastoral attire
+
+2. PASTOR AKANDE PHOTO
+   Filename: pastor-akande.jpg
+   Subject: Pastor Abraham Akinyemi Akande (Parish Pastor)
+   Recommended specs:
+   - Size: 800x1000px (portrait orientation)
+   - Format: JPG or WebP
+   - File size: Under 300KB
+   - Quality: High resolution, professional photo
+   - Style: Formal pastoral attire
+
+WHERE TO SAVE:
+Save both images to: c:\code\rccg-signs-and-wonders\public\images\
+
+EXACT FILENAMES REQUIRED:
+- pastor-adeboye.jpg
+- pastor-akande.jpg
+
+Once saved, the photos will automatically appear on the Leaders page at /leaders
+
+===============================================
