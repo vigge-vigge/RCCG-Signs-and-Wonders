@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 
 type Post = {
@@ -35,16 +35,7 @@ export default function AdminPostsPage() {
     imageUrl: '',
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login');
-    } else if (status === 'authenticated') {
-      fetchPosts();
-    }
-  }, [status, router, filter]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/posts?type=${filter}`);
@@ -57,7 +48,14 @@ export default function AdminPostsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/admin/login');
+    } else if (status === 'authenticated') {
+      fetchPosts();
+    }
+  }, [status, router, fetchPosts]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

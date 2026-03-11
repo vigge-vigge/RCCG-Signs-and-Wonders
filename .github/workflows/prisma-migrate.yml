@@ -1,4 +1,4 @@
-name: "Prisma Migrate & Seed"
+﻿name: "Prisma Migrate & Seed"
 
 on:
   push:
@@ -20,38 +20,30 @@ jobs:
           set -e
           echo "Diagnosing DB connectivity..." > diagnose.log
           echo "Date: $(date -u)" >> diagnose.log
-          echo "Resolving host from DATABASE_URL (redacted)" >> diagnose.log
-          # extract host from DATABASE_URL
-          python3 - <<'PY' >> diagnose.log 2>&1 || true
-import os,re
-url=os.environ.get('DATABASE_URL','')
-m=re.search(r"@([^:/?#]+)",url)
-host=m.group(1) if m else 'unknown'
-print('Host resolved from DATABASE_URL:', host)
-PY
-
-          # Attempt DNS lookup and Python TCP connect
-          HOST=$(python3 -c "import os,re; url=os.environ.get('DATABASE_URL',''); import re; m=re.search(r'@([^:/?#]+)',url); print(m.group(1) if m else '')")
+          HOST="${DATABASE_URL#*@}"
+          HOST="${HOST%%[:/?#]*}"
+          echo "Host resolved from DATABASE_URL: $HOST" >> diagnose.log
           echo "nslookup for $HOST:" >> diagnose.log
-          nslookup $HOST >> diagnose.log 2>&1 || true
+          nslookup "$HOST" >> diagnose.log 2>&1 || true
           echo "Attempt TCP connect via python3" >> diagnose.log
-          python3 - <<'PY' >> diagnose.log 2>&1 || true
-import socket,os,re
-url=os.environ.get('DATABASE_URL','')
-m=re.search(r'@([^:/?#]+)',url)
-host=m.group(1) if m else None
-if not host:
-    print('No host extracted')
-    raise SystemExit(2)
-sock=socket.socket(); sock.settimeout(8)
-try:
-    sock.connect((host,5432))
-    print('TCP CONNECT SUCCESS to', host)
-except Exception as e:
-    print('TCP CONNECT FAILED:', e)
-finally:
-    sock.close()
-PY
+          python3 -c "
+          import socket, os, re
+          url = os.environ.get('DATABASE_URL', '')
+          m = re.search(r'@([^:/?#]+)', url)
+          host = m.group(1) if m else None
+          if not host:
+              print('No host extracted')
+              raise SystemExit(2)
+          sock = socket.socket()
+          sock.settimeout(8)
+          try:
+              sock.connect((host, 5432))
+              print('TCP CONNECT SUCCESS to', host)
+          except Exception as e:
+              print('TCP CONNECT FAILED:', e)
+          finally:
+              sock.close()
+          " >> diagnose.log 2>&1 || true
 
       - name: Upload diagnose log
         if: always()
@@ -87,10 +79,9 @@ PY
           if npx prisma migrate deploy 2>&1 | tee -a migrate.log; then
             echo "migrate deploy succeeded" | tee -a migrate.log
           else
-            echo "migrate deploy failed — falling back to 'npx prisma db push'" | tee -a migrate.log
+            echo "migrate deploy failed - falling back to npx prisma db push" | tee -a migrate.log
             npx prisma db push 2>&1 | tee -a migrate.log
           fi
-          # ensure migrate.log is printed to the action log as well
           cat migrate.log
 
       - name: Run seed (if present)
@@ -99,7 +90,6 @@ PY
           NEXTAUTH_ADMIN_EMAIL: ${{ secrets.NEXTAUTH_ADMIN_EMAIL }}
           NEXTAUTH_ADMIN_PASSWORD_HASH: ${{ secrets.NEXTAUTH_ADMIN_PASSWORD_HASH }}
         run: |
-          # Run seed script (prisma db seed) and capture output to seed.log
           echo "Running prisma db seed..." | tee seed.log
           npx prisma db seed 2>&1 | tee -a seed.log || true
           cat seed.log
