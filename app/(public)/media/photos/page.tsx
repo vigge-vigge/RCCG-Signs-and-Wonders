@@ -19,11 +19,7 @@ export default function PhotosPage() {
   const [filterType, setFilterType] = useState<'all' | 'weekly' | 'special'>('all');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
-  useEffect(() => {
-    fetchAlbums();
-  }, [filterType, sortOrder]);
-
-  const fetchAlbums = async () => {
+  const fetchAlbums = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/albums?type=${filterType}&sort=${sortOrder}`);
@@ -36,8 +32,10 @@ export default function PhotosPage() {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [filterType, sortOrder]);
+  useEffect(() => {
+    fetchAlbums();
+  }, [fetchAlbums]);
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 pt-20">
       {/* Header */}

@@ -19,11 +19,7 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'testimony' | 'news'>('all');
 
-  useEffect(() => {
-    fetchPosts();
-  }, [filter]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/posts?type=${filter}`);
@@ -36,7 +32,11 @@ export default function Events() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
 
   return (
     <div className="pt-20">

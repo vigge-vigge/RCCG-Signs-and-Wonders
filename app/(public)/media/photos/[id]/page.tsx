@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,11 +25,7 @@ export default function AlbumDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPhoto, setSelectedPhoto] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchAlbum();
-  }, [albumId]);
-
-  const fetchAlbum = async () => {
+  const fetchAlbum = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/albums/${albumId}`);
@@ -45,7 +41,11 @@ export default function AlbumDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [albumId]);
+
+  useEffect(() => {
+    fetchAlbum();
+  }, [fetchAlbum]);
 
   if (loading) {
     return (
