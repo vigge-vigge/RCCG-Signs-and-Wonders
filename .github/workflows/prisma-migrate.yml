@@ -1,0 +1,40 @@
+name: "Prisma Migrate & Seed"
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    name: Run Prisma migrations and seed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma migrate deploy
+
+      - name: Run seed (if present)
+        if: success()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_ADMIN_EMAIL: ${{ secrets.NEXTAUTH_ADMIN_EMAIL }}
+          NEXTAUTH_ADMIN_PASSWORD_HASH: ${{ secrets.NEXTAUTH_ADMIN_PASSWORD_HASH }}
+        run: |
+          # Run seed script (prisma db seed). If no seed configured, this will exit harmlessly.
+          npx prisma db seed || true

@@ -1,348 +1,133 @@
-# Deployment Guide
+# Deploy to Vercel (Next.js)
 
-## Pre-Deployment Checklist
+This file contains a focused Vercel-only deployment guide for this Next.js site.
 
-- [ ] Update admin credentials in `lib/auth.ts`
-- [ ] Add real church images to `public/images/`
-- [ ] Update contact information
-- [ ] Review all content for accuracy
-- [ ] Test all pages locally
-- [ ] Set up production environment variables
-- [ ] Choose hosting platform
+## Prerequisites
+- A GitHub repository with your project pushed
+- A Vercel account connected to that GitHub account
+- DNS access for your custom domain (optional)
+- Production environment values (secrets) ready
+- Do NOT commit `.env.local` or any secret files to GitHub
 
-## Deployment Options
-
-### Option 1: Vercel (Recommended - Easiest)
-
-**Pros**: Free tier, automatic CI/CD, optimized for Next.js
-**Best for**: Quick deployment, auto-scaling
-
-**Steps:**
-
-1. **Push to GitHub**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin <your-repo-url>
-   git push -u origin main
-   ```
-
-2. **Deploy to Vercel**
-   - Visit [vercel.com](https://vercel.com)
-   - Click "Import Project"
-   - Select your GitHub repository
-   - Configure:
-     - Framework Preset: Next.js
-     - Root Directory: ./
-   
-3. **Add Environment Variables**
-   - `NEXTAUTH_SECRET`: (generate new secret)
-   - `NEXTAUTH_URL`: https://your-domain.vercel.app
-
-4. **Deploy**
-   - Click "Deploy"
-   - Wait for build to complete
-   - Visit your site!
-
-**Custom Domain:**
-- Go to Project Settings → Domains
-- Add your custom domain (e.g., rccgsignsandwonders.com)
-- Update DNS records as instructed
-
----
-
-### Option 2: Netlify
-
-**Pros**: Free tier, easy deployment
-**Best for**: Static sites with API routes
-
-**Steps:**
-
-1. **Push to GitHub** (same as Vercel)
-
-2. **Deploy to Netlify**
-   - Visit [netlify.com](https://netlify.com)
-   - Click "Import from Git"
-   - Select your repository
-   - Build settings:
-     - Build command: `npm run build`
-     - Publish directory: `.next`
-
-3. **Add Environment Variables**
-   - Site Settings → Environment Variables
-   - Add same variables as Vercel
-
-4. **Deploy**
-
----
-
-### Option 3: Railway
-
-**Pros**: Database hosting included, Docker support
-**Best for**: Full-stack apps with database
-
-**Steps:**
-
-1. **Push to GitHub**
-
-2. **Deploy to Railway**
-   - Visit [railway.app](https://railway.app)
-   - Create new project from GitHub repo
-   - Railway auto-detects Next.js
-
-3. **Environment Variables**
-   - Add in Railway dashboard
-
-4. **Database** (optional)
-   - Add PostgreSQL service
-   - Update `DATABASE_URL` in env vars
-   - Enable Prisma in code
-
----
-
-### Option 4: DigitalOcean App Platform
-
-**Pros**: Predictable pricing, good performance
-**Best for**: Production apps
-
-**Steps:**
-
-1. **Push to GitHub**
-
-2. **Create App**
-   - Visit [DigitalOcean Apps](https://www.digitalocean.com/products/app-platform)
-   - Create app from GitHub
-   - Select Next.js
-
-3. **Configure**
-   - Build command: `npm run build`
-   - Run command: `npm start`
-   - Environment variables
-
-4. **Deploy**
-
----
-
-## Production Environment Variables
-
-Create these in your hosting platform:
-
+## 1) Push your code to GitHub
+If you haven't already:
 ```bash
-# Required
-NEXTAUTH_SECRET=<generate-new-secret-32-chars-min>
-NEXTAUTH_URL=https://your-production-domain.com
-
-# Optional (if using database)
-DATABASE_URL=<your-database-connection-string>
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <your-repo-url>
+git push -u origin main
 ```
 
-**Generate NEXTAUTH_SECRET:**
+## 2) Import the project on Vercel
+1. Go to https://vercel.com and click **Import Project** → **Import Git Repository**.
+2. Select your GitHub repository.
+3. Configure project:
+   - Framework Preset: **Next.js**
+   - Root Directory: `./` (leave blank if repo root)
+   - Install Command: `npm install`
+   - Build Command: `npm run build`
+   - Output Directory: leave default
+
+## 3) Add Environment Variables (Vercel Dashboard)
+In Project Settings → Environment Variables add these keys (Production & Preview as needed):
+
+- `NEXTAUTH_URL` = `https://your-production-domain` (or `https://your-project.vercel.app`)
+- `NEXTAUTH_SECRET` = generate with:
+  ```bash
+  node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+  ```
+- `NEXTAUTH_ADMIN_EMAIL` = `rccgsignsandwondersjonkoping@yahoo.com`
+- `NEXTAUTH_ADMIN_PASSWORD_HASH` = (bcrypt hash of the admin password). Generate locally:
+  ```bash
+  node -e "console.log(require('bcryptjs').hashSync('Jesusislord2026',10))"
+  ```
+- `DATABASE_URL` = your production DB connection string (if using a DB)
+
+Notes:
+- Paste values directly into the Vercel UI or click **Import .env** and paste key=values.
+- Do not store plaintext passwords in repo or in Vercel; store only hashed passwords.
+
+## 4) Database & Migrations
+If you use Prisma and a production database (recommended: Postgres via Railway/Supabase/Vercel Postgres):
+
+1. Create the production database on your chosen provider and copy `DATABASE_URL` to Vercel env.
+2. Apply migrations on production DB (run from a machine that has access to the DB or in CI):
 ```bash
-# Option 1: OpenSSL (if available)
-openssl rand -base64 32
-
-# Option 2: Node.js
-node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
-
-# Option 3: Online generator
-# Visit: https://generate-secret.vercel.app/32
+# Run this where DATABASE_URL points to your production DB
+npx prisma migrate deploy
 ```
-
----
-
-## Database Setup (Production)
-
-### Option 1: Railway PostgreSQL
-
-1. Add PostgreSQL to your Railway project
-2. Copy `DATABASE_URL` from Railway
-3. Add to environment variables
-4. Run migrations:
-   ```bash
-   npx prisma migrate deploy
-   ```
-
-### Option 2: Vercel Postgres
-
-1. Enable Vercel Postgres in dashboard
-2. Connect to your project
-3. Run migrations via Vercel CLI
-
-### Option 3: Supabase
-
-1. Create project at [supabase.com](https://supabase.com)
-2. Get connection string
-3. Add to `DATABASE_URL`
-4. Run migrations
-
----
-
-## Custom Domain Setup
-
-### DNS Configuration
-
-Add these DNS records (varies by registrar):
-
-**For Vercel:**
-```
-Type: CNAME
-Name: www
-Value: cname.vercel-dns.com
-
-Type: A
-Name: @
-Value: 76.76.21.21
-```
-
-**For Netlify:**
-```
-Type: CNAME
-Name: www
-Value: your-site.netlify.app
-
-Type: A
-Name: @
-Value: 75.2.60.5
-```
-
-### SSL Certificate
-
-All platforms provide free SSL certificates:
-- Vercel: Automatic via Let's Encrypt
-- Netlify: Automatic via Let's Encrypt
-- Railway: Automatic
-- DigitalOcean: Automatic
-
----
-
-## Post-Deployment
-
-### 1. Test Everything
-
-- [ ] All pages load correctly
-- [ ] Admin login works
-- [ ] API routes respond
-- [ ] Images load properly
-- [ ] Contact form (if connected)
-- [ ] Mobile responsiveness
-
-### 2. SEO Setup
-
-Add to `app/layout.tsx`:
-```typescript
-export const metadata: Metadata = {
-  title: 'RCCG Signs and Wonders - Jönköping Sweden',
-  description: 'The Redeemed Christian Church of God - Signs and Wonders Parish, Jönköping Sweden',
-  keywords: 'church, RCCG, Jönköping, Sweden, Christian, worship',
-  openGraph: {
-    title: 'RCCG Signs and Wonders',
-    description: 'Welcome to our church community',
-    url: 'https://your-domain.com',
-    siteName: 'RCCG Signs and Wonders',
-    images: ['/images/church-exterior.jpg'],
-  },
-};
-```
-
-### 3. Analytics (Optional)
-
-Add Google Analytics:
-1. Create GA4 property
-2. Add tracking code to `app/layout.tsx`
-
-### 4. Monitoring
-
-Set up:
-- Uptime monitoring (UptimeRobot, Pingdom)
-- Error tracking (Sentry)
-- Performance monitoring (Vercel Analytics)
-
----
-
-## Maintenance
-
-### Regular Updates
-
+3. Run seed (if you have a seed script):
 ```bash
-# Update dependencies monthly
-npm update
-
-# Check for security issues
-npm audit
-
-# Fix security issues
-npm audit fix
+npx prisma db seed
 ```
 
-### Backup Strategy
+Common option: run migrations in CI (GitHub Actions) after `build` and before deployment, or run `npx prisma migrate deploy` manually once after provisioning the DB.
 
-1. **Code**: Stored in GitHub
-2. **Database**: 
-   - Railway: Automatic backups
-   - Supabase: Point-in-time recovery
-   - Manual: Schedule weekly backups
+## 5) Custom Domain (optional)
+1. In Vercel → Project → Domains → Add `rccgsignsandwondersjonkoping.se` and `www.rccgsignsandwondersjonkoping.se`.
+2. Add DNS records at your registrar:
+   - `www` → CNAME → `cname.vercel-dns.com`
+   - Root (@) → A → `76.76.21.21` (or use ALIAS/ANAME if supported)
+3. Vercel will verify and provision SSL automatically.
 
-### Content Updates
-
-1. Use admin dashboard for content
-2. Or update code and redeploy
-3. Test in staging first (create staging branch)
-
----
-
-## Troubleshooting Production
-
-### Build Fails
-
-Check build logs for:
-- Missing environment variables
-- TypeScript errors
-- Missing dependencies
-
-Solution:
+## 6) Deploy
+- Click **Deploy** in Vercel (first import) or push a new commit to trigger automatic deployments:
 ```bash
-# Test build locally
-npm run build
-
-# Fix errors, then push
+git add .
+git commit -m "Deploy-ready"
+git push origin main
 ```
 
-### Site is Slow
+## 7) Post-deploy checks
+- Visit your site URL and verify pages load.
+- Test admin login at `/admin/login` using the admin email and password you hashed and stored in Vercel env.
+- Check API routes, images, mobile responsiveness.
 
-1. Enable Vercel Analytics
-2. Check image optimization
-3. Add caching headers
-4. Consider CDN for images
+## 8) Troubleshooting & tips
+- If build fails, check Vercel build logs for missing env vars or TypeScript errors.
+- If Prisma complains about DB file (SQLite) during build, prefer using a production Postgres DB for Vercel — SQLite files are not suitable for serverless builds.
+- If secrets were committed previously, remove them from history (BFG/git-filter-repo) and rotate secrets.
 
-### Admin Login Not Working
+## 9) Security & maintenance
+- Keep `.env.local` in your local `.gitignore` (already present).
+- Rotate `NEXTAUTH_SECRET` and admin password after initial setup.
+- Set up monitoring (Sentry) and regular backups for your DB.
 
-1. Verify `NEXTAUTH_SECRET` is set
-2. Check `NEXTAUTH_URL` matches domain
-3. Clear browser cookies
-4. Check browser console for errors
-
----
-
-## Scaling Considerations
-
-As your site grows:
-
-1. **Database**: Upgrade to production tier
-2. **Hosting**: Monitor usage, upgrade plan if needed
-3. **CDN**: Add Cloudflare for global performance
-4. **Caching**: Implement Redis for session storage
-5. **Media**: Use Cloudinary or Uploadcare for images
-
----
-
-## Support
-
-For deployment help:
-- Vercel Discord: [discord.gg/vercel](https://discord.gg/vercel)
-- Netlify Support: [answers.netlify.com](https://answers.netlify.com)
-- Railway Discord: [discord.gg/railway](https://discord.gg/railway)
+## Quick env template (for Vercel UI)
+Copy-paste into Vercel's **Import .env** box (replace placeholders):
+```
+NEXTAUTH_URL=https://rccgsignsandwondersjonkoping.se
+NEXTAUTH_SECRET=<paste-generated-secret>
+NEXTAUTH_ADMIN_EMAIL=rccgsignsandwondersjonkoping@yahoo.com
+NEXTAUTH_ADMIN_PASSWORD_HASH=<paste-bcrypt-hash>
+DATABASE_URL=<your-production-db-connection-string>
+```
 
 ---
 
-**Ready to deploy? Choose your platform and follow the steps above!**
+## GitHub Actions — repository secrets (for migrations)
+If you enabled the `Prisma Migrate & Seed` workflow, add these repository secrets so the workflow can run migrations and seed the production DB.
+
+Required secrets (GitHub repository → Settings → Secrets → Actions):
+- `DATABASE_URL` — your production DB connection string (Postgres recommended)
+- `NEXTAUTH_ADMIN_EMAIL` — admin email (same as Vercel)
+- `NEXTAUTH_ADMIN_PASSWORD_HASH` — bcrypt hash of the admin password
+- `NEXTAUTH_SECRET` — same secret you use in Vercel (optional for seed)
+
+Example using GitHub CLI (replace values):
+```bash
+# Install GitHub CLI and authenticate first: https://cli.github.com/
+gh secret set DATABASE_URL --body "postgresql://DB_USER:DB_PASSWORD@DB_HOST:5432/DB_NAME?schema=public"
+gh secret set NEXTAUTH_ADMIN_EMAIL --body "rccgsignsandwondersjonkoping@yahoo.com"
+gh secret set NEXTAUTH_ADMIN_PASSWORD_HASH --body "$2a$10$WiljrBqaI3SB9R61ha7bl.6/jflj4.t3pzAvpbqVGxRsSay5mXrM2"
+gh secret set NEXTAUTH_SECRET --body "0PCKqxe6Sk2lDluCgFVH3R1UsbUITO5BNpkKYBq19SE="
+```
+
+Verify the workflow runs after pushing a commit or manually dispatching the workflow in the Actions tab.
+
+Notes:
+- Keep secrets consistent between Vercel and GitHub if both need them.
+- Do NOT commit secrets to the repo. Rotate secrets if accidentally exposed.
+
+If you want, I can add a short GitHub Action to run `npx prisma migrate deploy` on deploy, or prepare the exact DNS records formatted for your registrar. Which would you like next?
