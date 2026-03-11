@@ -6,6 +6,61 @@ on:
   workflow_dispatch:
 
 jobs:
+  diagnose:
+    name: Diagnose DB connectivity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run connectivity checks
+        env:
+          DB_HOST: ${{ env.DB_HOST }}
+        run: |
+          set -e
+          echo "Diagnosing DB connectivity..." > diagnose.log
+          echo "Date: $(date -u)" >> diagnose.log
+          echo "Resolving host: ${{ secrets.DATABASE_URL }}" >> diagnose.log
+          # extract host from DATABASE_URL
+          python3 - <<'PY' >> diagnose.log 2>&1 || true
+import os,sys,re
+url=os.environ.get('DATABASE_URL','')
+m=re.search(r"@([^:/?#]+)",url)
+host=m.group(1) if m else 'unknown'
+print('Host resolved from DATABASE_URL:', host)
+PY
+
+          # Attempt DNS lookup and Python TCP connect
+          HOST=$(python3 -c "import os,re; url=os.environ.get('DATABASE_URL',''); import re; m=re.search(r'@([^:/?#]+)',url); print(m.group(1) if m else '')")
+          echo "nslookup for $HOST:" >> diagnose.log
+          nslookup $HOST >> diagnose.log 2>&1 || true
+          echo "Attempt TCP connect via python3" >> diagnose.log
+          python3 - <<'PY' >> diagnose.log 2>&1 || true
+import socket,os
+url=os.environ.get('DATABASE_URL','')
+import re
+m=re.search(r'@([^:/?#]+)',url)
+host=m.group(1) if m else None
+if not host:
+    print('No host extracted')
+    raise SystemExit(2)
+sock=socket.socket(); sock.settimeout(8)
+try:
+    sock.connect((host,5432))
+    print('TCP CONNECT SUCCESS to', host)
+except Exception as e:
+    print('TCP CONNECT FAILED:', e)
+finally:
+    sock.close()
+PY
+
+      - name: Upload diagnose log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnose-log
+          path: diagnose.log
+
   migrate:
     name: Run Prisma migrations and seed
     runs-on: ubuntu-latest
