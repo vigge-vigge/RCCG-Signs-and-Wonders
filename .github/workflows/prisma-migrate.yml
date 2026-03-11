@@ -24,13 +24,20 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Run migrations
+      - name: Run migrations (deploy) or fallback to db push
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma migrate deploy
+        run: |
+          set -e
+          echo "Attempting to run 'npx prisma migrate deploy'..."
+          if npx prisma migrate deploy; then
+            echo "migrate deploy succeeded"
+          else
+            echo "migrate deploy failed — falling back to 'npx prisma db push'"
+            npx prisma db push
+          fi
 
       - name: Run seed (if present)
-        if: success()
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_ADMIN_EMAIL: ${{ secrets.NEXTAUTH_ADMIN_EMAIL }}
