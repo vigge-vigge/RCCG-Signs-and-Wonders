@@ -15,15 +15,15 @@ jobs:
 
       - name: Run connectivity checks
         env:
-          DB_HOST: ${{ env.DB_HOST }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           set -e
           echo "Diagnosing DB connectivity..." > diagnose.log
           echo "Date: $(date -u)" >> diagnose.log
-          echo "Resolving host: ${{ secrets.DATABASE_URL }}" >> diagnose.log
+          echo "Resolving host from DATABASE_URL (redacted)" >> diagnose.log
           # extract host from DATABASE_URL
           python3 - <<'PY' >> diagnose.log 2>&1 || true
-import os,sys,re
+import os,re
 url=os.environ.get('DATABASE_URL','')
 m=re.search(r"@([^:/?#]+)",url)
 host=m.group(1) if m else 'unknown'
@@ -36,9 +36,8 @@ PY
           nslookup $HOST >> diagnose.log 2>&1 || true
           echo "Attempt TCP connect via python3" >> diagnose.log
           python3 - <<'PY' >> diagnose.log 2>&1 || true
-import socket,os
+import socket,os,re
 url=os.environ.get('DATABASE_URL','')
-import re
 m=re.search(r'@([^:/?#]+)',url)
 host=m.group(1) if m else None
 if not host:
