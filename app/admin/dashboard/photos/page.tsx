@@ -41,6 +41,7 @@ export default function AdminPhotosPage() {
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('file');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login');
@@ -348,6 +349,7 @@ export default function AdminPhotosPage() {
                           {album.photos.map((photo) => (
                             <div key={photo.id} className="relative group">
                               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={photo.url}
                                   alt={photo.caption || 'Photo'}

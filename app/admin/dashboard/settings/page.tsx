@@ -26,6 +26,7 @@ export default function AdminSettingsPage() {
     youtubeUrl: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login');

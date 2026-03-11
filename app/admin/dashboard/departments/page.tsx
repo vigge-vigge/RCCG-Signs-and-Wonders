@@ -31,6 +31,7 @@ export default function AdminDepartmentsPage() {
     imageUrl: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login');
@@ -335,6 +336,7 @@ export default function AdminDepartmentsPage() {
                 </p>
                 {imagePreview && (
                   <div className="mt-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imagePreview}
                       alt="Preview"

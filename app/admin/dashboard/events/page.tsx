@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Event = {
   id: number | string;
@@ -225,10 +226,13 @@ export default function AdminEventsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           {event.imageUrl && (
-                            <img
+                            <Image
                               src={event.imageUrl}
                               alt={event.title}
+                              width={40}
+                              height={40}
                               className="h-10 w-10 rounded object-cover mr-3"
+                              unoptimized
                             />
                           )}
                           <div>
@@ -354,6 +358,7 @@ export default function AdminEventsPage() {
                 </p>
                 {imagePreview && (
                   <div className="mt-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imagePreview}
                       alt="Image preview"

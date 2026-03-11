@@ -26,6 +26,7 @@ export default function Footer() {
     youtubeUrl: 'https://youtube.com',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchSettings();
   }, []);

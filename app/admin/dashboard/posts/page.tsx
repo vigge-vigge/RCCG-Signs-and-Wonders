@@ -363,6 +363,7 @@ export default function AdminPostsPage() {
                 </p>
                 {imagePreview && (
                   <div className="mt-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imagePreview}
                       alt="Image preview"

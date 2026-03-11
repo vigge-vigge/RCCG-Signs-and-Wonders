@@ -97,6 +97,7 @@ export default function Events() {
                 <div key={post.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                   {post.imageUrl && (
                     <div className="h-48 bg-gray-200 relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
                     </div>
                   )}

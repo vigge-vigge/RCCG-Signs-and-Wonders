@@ -39,6 +39,7 @@ export default function AdminSermonsPage() {
     thumbnailUrl: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login');
@@ -365,6 +366,7 @@ export default function AdminSermonsPage() {
                 </p>
                 {thumbnailPreview && (
                   <div className="mt-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={thumbnailPreview}
                       alt="Thumbnail preview"

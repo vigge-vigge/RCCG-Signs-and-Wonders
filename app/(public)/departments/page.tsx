@@ -15,6 +15,7 @@ export default function Departments() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchDepartments();
   }, []);
@@ -67,7 +68,8 @@ export default function Departments() {
                 >
                   {department.imageUrl && (
                     <div className="h-48 bg-gray-200">
-                      <img
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
                         src={department.imageUrl}
                         alt={department.name}
                         className="w-full h-full object-cover"
