@@ -1,7 +1,34 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { decode } from 'next-auth/jwt';
 import { prisma } from '../lib/prisma';
+
+/**
+ * Reads the NextAuth session token directly from the HTTP Cookie header
+ * and decrypts it. Works in any Next.js runtime (Edge or Node.js).
+ */
+export async function isAuthenticatedRequest(request: Request): Promise<boolean> {
+  const cookieHeader = request.headers.get('cookie') ?? '';
+  let sessionToken = '';
+  for (const part of cookieHeader.split(';')) {
+    const eq = part.indexOf('=');
+    if (eq === -1) continue;
+    const name = part.slice(0, eq).trim();
+    if (
+      name === '__Secure-next-auth.session-token' ||
+      name === 'next-auth.session-token'
+    ) {
+      sessionToken = part.slice(eq + 1).trim();
+      break;
+    }
+  }
+  if (!sessionToken) return false;
+  const secret = process.env.NEXTAUTH_SECRET?.trim();
+  if (!secret) return false;
+  const decoded = await decode({ token: sessionToken, secret }).catch(() => null);
+  return !!decoded;
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [

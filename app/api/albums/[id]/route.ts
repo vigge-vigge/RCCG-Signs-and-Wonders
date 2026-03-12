@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAuthenticatedRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/albums/[id] - Get single album with photos
@@ -42,6 +43,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!(await isAuthenticatedRequest(request))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const albumId = parseInt(params.id);
 
@@ -65,6 +69,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!(await isAuthenticatedRequest(request))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const albumId = parseInt(params.id);
     const body = await request.json();

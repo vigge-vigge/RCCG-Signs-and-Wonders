@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAuthenticatedRequest } from '@/lib/auth';
 
 // GET /api/sermons/[id] - Get single sermon
 export async function GET(
@@ -39,6 +40,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!(await isAuthenticatedRequest(request))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const sermonId = params.id;
 
@@ -62,6 +66,9 @@ export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  if (!(await isAuthenticatedRequest(request))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const sermonId = params.id;
     const body = await request.json();
