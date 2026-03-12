@@ -129,7 +129,7 @@ export default function Sermons() {
             channel for weekly uploads.
           </p>
           <a
-            href="https://youtube.com"
+            href="https://www.youtube.com/@rccgsignsandwondersjonkopi3277"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block bg-red-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
