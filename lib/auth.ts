@@ -1,22 +1,7 @@
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { decode } from 'next-auth/jwt';
-import { cookies } from 'next/headers';
 import { prisma } from '../lib/prisma';
-
-/**
- * Reads and decodes the NextAuth JWT directly from the cookie store.
- * This is the reliable way to check auth in Next.js 14 App Router route handlers.
- */
-export async function getAuthToken() {
-  const cookieStore = cookies();
-  const token =
-    cookieStore.get('__Secure-next-auth.session-token')?.value ??
-    cookieStore.get('next-auth.session-token')?.value;
-  if (!token) return null;
-  return decode({ token, secret: process.env.NEXTAUTH_SECRET! });
-}
 
 export const authOptions: NextAuthOptions = {
   providers: [

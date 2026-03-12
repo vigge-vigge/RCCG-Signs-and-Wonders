@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/sermons - Get all sermons
@@ -26,15 +25,6 @@ export async function GET(request: Request) {
 // POST /api/sermons - Create new sermon (admin only)
 export async function POST(request: Request) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { title, description, date, speaker, scripture, videoUrl, audioUrl, thumbnailUrl } = body;
 

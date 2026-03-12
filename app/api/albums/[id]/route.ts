@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/albums/[id] - Get single album with photos
@@ -44,14 +43,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const albumId = parseInt(params.id);
 
     // Photos will be automatically deleted due to cascade delete
@@ -75,15 +66,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const albumId = parseInt(params.id);
     const body = await request.json();
     const { title, date, eventType, coverImage } = body;

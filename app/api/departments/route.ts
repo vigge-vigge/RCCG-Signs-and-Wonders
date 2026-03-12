@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/departments - Get all departments
@@ -22,15 +21,6 @@ export async function GET() {
 // POST /api/departments - Create new department (admin only)
 export async function POST(request: Request) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { name, description, leader, imageUrl } = body;
 

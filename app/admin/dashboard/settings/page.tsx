@@ -78,7 +78,8 @@ export default function AdminSettingsPage() {
         setMessage('Settings saved successfully!');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('Error saving settings. Please try again.');
+        const errData = await response.json().catch(() => ({}));
+        setMessage(`Error ${response.status}: ${errData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error saving settings:', error);

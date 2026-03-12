@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // POST /api/albums/[id]/photos - Add photos to album (admin only)
@@ -8,15 +7,6 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const albumId = parseInt(params.id);
     const body = await request.json();
     const { url, caption } = body;

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 
 // GET /api/sermons/[id] - Get single sermon
 export async function GET(
@@ -41,15 +40,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const sermonId = params.id;
 
     // TODO: Replace with actual database delete
@@ -73,15 +63,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const sermonId = params.id;
     const body = await request.json();
     const { title, description, date, speaker, scripture, videoUrl, audioUrl, thumbnailUrl } = body;

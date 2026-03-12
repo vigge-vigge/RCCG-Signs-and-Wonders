@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // DELETE /api/photos/[id] - Delete photo (admin only)
@@ -8,15 +7,6 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const photoId = parseInt(params.id);
 
     await prisma.photo.delete({
@@ -39,15 +29,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getAuthToken();
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const photoId = parseInt(params.id);
     const body = await request.json();
     const { caption } = body;
