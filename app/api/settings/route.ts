@@ -81,7 +81,7 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     
     if (!token) {
       return NextResponse.json(

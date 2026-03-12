@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 // POST /api/sermons - Create new sermon (admin only)
 export async function POST(request: Request) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     
     if (!token) {
       return NextResponse.json(

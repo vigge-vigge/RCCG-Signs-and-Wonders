@@ -7,7 +7,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     
     if (!token) {
       return NextResponse.json(
@@ -35,7 +35,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     
     if (!token) {
       return NextResponse.json(

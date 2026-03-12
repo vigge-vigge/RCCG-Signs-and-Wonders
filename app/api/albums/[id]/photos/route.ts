@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = await getToken({ req: request as any });
+    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
     
     if (!token) {
       return NextResponse.json(
