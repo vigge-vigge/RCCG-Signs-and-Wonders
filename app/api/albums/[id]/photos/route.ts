@@ -37,6 +37,12 @@ export async function POST(
       }
     });
 
+    // Set coverImage on the album if it doesn't have one yet
+    await prisma.album.updateMany({
+      where: { id: albumId, coverImage: null },
+      data: { coverImage: url },
+    });
+
     return NextResponse.json(photo, { status: 201 });
   } catch (error) {
     console.error('Error adding photo:', error);
