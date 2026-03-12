@@ -168,7 +168,7 @@ export default function Contact() {
 
               {status === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
-                  Thank you! Your message has been sent. We'll get back to you soon.
+                  Thank you! Your message has been sent. We&apos;ll get back to you soon.
                 </div>
               )}
               {status === 'error' && (
