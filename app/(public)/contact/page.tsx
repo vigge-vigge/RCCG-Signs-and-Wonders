@@ -1,6 +1,36 @@
+'use client';
+
 import Hero from '../../components/Hero';
+import { useState } from 'react';
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) {
+        setStatus('success');
+        setForm({ name: '', email: '', subject: '', message: '' });
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
+  };
+
   return (
     <div className="pt-20">
       <Hero
@@ -135,7 +165,19 @@ export default function Contact() {
               <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6">
                 Send Us a Message
               </h2>
-              <form className="space-y-6">
+
+              {status === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
+                  Thank you! Your message has been sent. We'll get back to you soon.
+                </div>
+              )}
+              {status === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
+                  Something went wrong. Please try again or contact us by phone.
+                </div>
+              )}
+
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                     Name
@@ -144,6 +186,8 @@ export default function Contact() {
                     type="text"
                     id="name"
                     name="name"
+                    value={form.name}
+                    onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                   />
@@ -157,6 +201,8 @@ export default function Contact() {
                     type="email"
                     id="email"
                     name="email"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                   />
@@ -170,6 +216,8 @@ export default function Contact() {
                     type="text"
                     id="subject"
                     name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                   />
@@ -183,6 +231,8 @@ export default function Contact() {
                     id="message"
                     name="message"
                     rows={5}
+                    value={form.message}
+                    onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     required
                   ></textarea>
@@ -190,9 +240,10 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                  disabled={status === 'sending'}
+                  className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-60"
                 >
-                  Send Message
+                  {status === 'sending' ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>

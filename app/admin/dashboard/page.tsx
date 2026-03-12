@@ -13,6 +13,7 @@ export default function AdminDashboard() {
     totalSermons: 0,
     totalAlbums: 0,
     totalPosts: 0,
+    unreadEnquiries: 0,
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -26,20 +27,23 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const [sermonsRes, albumsRes, postsRes] = await Promise.all([
+      const [sermonsRes, albumsRes, postsRes, enquiriesRes] = await Promise.all([
         fetch('/api/sermons'),
         fetch('/api/albums'),
         fetch('/api/posts?type=all'),
+        fetch('/api/enquiries'),
       ]);
 
       const sermons = sermonsRes.ok ? await sermonsRes.json() : [];
       const albums = albumsRes.ok ? await albumsRes.json() : [];
       const posts = postsRes.ok ? await postsRes.json() : [];
+      const enquiries = enquiriesRes.ok ? await enquiriesRes.json() : [];
 
       setStats({
         totalSermons: sermons.length,
         totalAlbums: albums.length,
         totalPosts: posts.length,
+        unreadEnquiries: enquiries.filter((e: { read: boolean }) => !e.read).length,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -252,6 +256,26 @@ export default function AdminDashboard() {
                 className="inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
               >
                 Manage Departments
+              </Link>
+            </div>
+
+            <div className="bg-white shadow rounded-lg p-6">
+              <h2 className="text-xl font-serif font-bold text-gray-900 mb-4">
+                Contact Enquiries
+                {stats.unreadEnquiries > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full align-middle">
+                    {stats.unreadEnquiries} new
+                  </span>
+                )}
+              </h2>
+              <p className="text-gray-600 mb-4">
+                View and respond to messages sent via the contact form.
+              </p>
+              <Link
+                href="/admin/dashboard/enquiries"
+                className="inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                View Enquiries
               </Link>
             </div>
 
