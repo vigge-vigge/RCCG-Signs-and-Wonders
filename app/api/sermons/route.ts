@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { getAuthToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/sermons - Get all sermons
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 // POST /api/sermons - Create new sermon (admin only)
 export async function POST(request: Request) {
   try {
-    const token = await getToken({ req: request as any, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getAuthToken();
     
     if (!token) {
       return NextResponse.json(
