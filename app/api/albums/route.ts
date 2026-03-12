@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/albums - Get all photo albums
@@ -35,9 +34,9 @@ export async function GET(request: Request) {
 // POST /api/albums - Create new album (admin only)
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const token = await getToken({ req: request as any });
     
-    if (!session || !session.user) {
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

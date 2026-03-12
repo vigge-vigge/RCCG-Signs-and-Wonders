@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/posts - Get all testimonies and news
@@ -29,9 +28,9 @@ export async function GET(request: Request) {
 // POST /api/posts - Create new testimony or news (admin only)
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const token = await getToken({ req: request as any });
     
-    if (!session || !session.user) {
+    if (!token) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
