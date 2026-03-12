@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || !session.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await request.formData();
@@ -20,48 +22,35 @@ export async function POST(request: Request) {
     const albumId = formData.get('albumId') as string;
 
     if (!files || files.length === 0) {
-      return NextResponse.json(
-        { error: 'No files provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
 
     const uploadedFiles = [];
-    
-    // Create album directory if it doesn't exist
-    const albumDir = path.join(process.cwd(), 'public', 'images', 'albums', albumId);
-    await mkdir(albumDir, { recursive: true });
 
     for (const file of files) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      // Generate unique filename
-      const timestamp = Date.now();
-      const filename = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filepath = path.join(albumDir, filename);
+      const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+        cloudinary.uploader.upload_stream(
+          { folder: `rccg/albums/${albumId}` },
+          (error, result) => {
+            if (error || !result) reject(error);
+            else resolve(result as { secure_url: string; public_id: string });
+          }
+        ).end(buffer);
+      });
 
-      // Write file to disk
-      await writeFile(filepath, buffer);
-
-      // Return the public URL
-      const publicUrl = `/images/albums/${albumId}/${filename}`;
       uploadedFiles.push({
-        filename,
-        url: publicUrl,
+        filename: result.public_id,
+        url: result.secure_url,
         size: file.size,
       });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      files: uploadedFiles 
-    });
+    return NextResponse.json({ success: true, files: uploadedFiles });
   } catch (error) {
     console.error('Error uploading files:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload files' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to upload files' }, { status: 500 });
   }
 }
