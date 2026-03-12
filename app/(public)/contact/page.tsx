@@ -100,7 +100,7 @@ export default function Contact() {
                   </div>
                   <div className="ml-4">
                     <h3 className="text-lg font-semibold text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+46 72 767 7358</p>
+                    <p className="text-gray-600">+46 73 501 2707</p>
                     <p className="text-gray-600">+46 73 978 1777</p>
                   </div>
                 </div>

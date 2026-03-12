@@ -10,6 +10,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: 'Reply message is required' }, { status: 400 });
     }
 
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('EMAIL_USER or EMAIL_PASS environment variables are not set');
+      return NextResponse.json({ error: 'Email is not configured. Please set EMAIL_USER and EMAIL_PASS in Vercel environment variables.' }, { status: 500 });
+    }
+
     const enquiry = await prisma.contactEnquiry.findUnique({ where: { id: params.id } });
     if (!enquiry) {
       return NextResponse.json({ error: 'Enquiry not found' }, { status: 404 });
@@ -57,7 +62,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error sending reply:', error);
-    return NextResponse.json({ error: 'Failed to send reply' }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('Error sending reply:', message);
+    return NextResponse.json({ error: `Failed to send reply: ${message}` }, { status: 500 });
   }
 }
