@@ -82,7 +82,7 @@ export default function LeadersPage() {
                 </h2>
                 <div className="prose prose-lg max-w-none text-gray-700 space-y-4">
                   <p>
-                    Pastor Abraham Akinyemi Akande is a trained engineer from the Federal College of Fisheries and Marine Technology. He had his postgraduate degree at the Federal University of Technology Owerri Nigeria and he is also a member of the Certified Institute of Shipping with close to two decades of experience in the shipping, oil and gas industry.
+                    Pastor Abraham Akinyemi Akande is a trained engineer from the Federal College of Fisheries and Marine Technology. He had his postgraduate degree at the Federal University of Technology Owerri Nigeria and he is also a member of the Certified Institute of Shipping with close to three decades of experience in the shipping, oil and gas industry.
                   </p>
                   <p>
                     He is a dynamic minister of the gospel with almost 20 years as a pastor in RCCG. A graduate of the School of Disciples and RCCG Bible College, he loves the word of God, preaches and teaches it passionately to the understanding of his congregation.
