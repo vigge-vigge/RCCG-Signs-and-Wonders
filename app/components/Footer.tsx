@@ -82,7 +82,7 @@ export default function Footer() {
             <h3 className="text-xl font-serif font-bold mb-4">Service Times</h3>
             <div className="space-y-2 text-gray-300">
               <p>Wednesday Bible Study</p>
-              <p className="text-sm">18:00 - 19:30</p>
+              <p className="text-sm">18:00 - 19:00</p>
               <p className="mt-3">Saturday Prayer Meeting</p>
               <p className="text-sm">12:00 - 13:00</p>
               <p className="mt-3">Sunday Service</p>
