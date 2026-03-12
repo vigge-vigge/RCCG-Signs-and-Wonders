@@ -21,6 +21,10 @@ export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Enquiry | null>(null);
+  const [showReply, setShowReply] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [replying, setReplying] = useState(false);
+  const [replyStatus, setReplyStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -61,7 +65,35 @@ export default function EnquiriesPage() {
 
   const openEnquiry = (enquiry: Enquiry) => {
     setSelected(enquiry);
+    setShowReply(false);
+    setReplyMessage('');
+    setReplyStatus('idle');
     markRead(enquiry);
+  };
+
+  const sendReply = async () => {
+    if (!selected || !replyMessage.trim()) return;
+    setReplying(true);
+    setReplyStatus('idle');
+    try {
+      const res = await fetch(`/api/enquiries/${selected.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ replyMessage }),
+      });
+      if (res.ok) {
+        setReplyStatus('success');
+        setReplyMessage('');
+        setShowReply(false);
+        setEnquiries(prev => prev.map(e => e.id === selected.id ? { ...e, read: true } : e));
+      } else {
+        setReplyStatus('error');
+      }
+    } catch {
+      setReplyStatus('error');
+    } finally {
+      setReplying(false);
+    }
   };
 
   const unreadCount = enquiries.filter(e => !e.read).length;
@@ -152,12 +184,12 @@ export default function EnquiriesPage() {
                       </p>
                     </div>
                     <div className="flex gap-2 flex-shrink-0 ml-4">
-                      <a
-                        href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
+                      <button
+                        onClick={() => { setShowReply(r => !r); setReplyStatus('idle'); }}
                         className="bg-primary-600 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-primary-700 transition-colors"
                       >
-                        Reply
-                      </a>
+                        {showReply ? 'Cancel' : 'Reply'}
+                      </button>
                       <button
                         onClick={() => deleteEnquiry(selected.id)}
                         className="bg-red-600 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors"
@@ -168,6 +200,41 @@ export default function EnquiriesPage() {
                   </div>
                   <hr className="mb-4" />
                   <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">{selected.message}</p>
+
+                  {/* Reply box */}
+                  {showReply && (
+                    <div className="mt-6 border-t pt-4">
+                      <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                        Reply to {selected.name} ({selected.email})
+                      </h3>
+                      {replyStatus === 'success' && (
+                        <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded text-green-800 text-sm">
+                          Reply sent successfully!
+                        </div>
+                      )}
+                      {replyStatus === 'error' && (
+                        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm">
+                          Failed to send. Check EMAIL_USER and EMAIL_PASS environment variables in Vercel.
+                        </div>
+                      )}
+                      <textarea
+                        rows={6}
+                        value={replyMessage}
+                        onChange={e => setReplyMessage(e.target.value)}
+                        placeholder="Type your reply here..."
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                      />
+                      <div className="flex justify-end mt-2">
+                        <button
+                          onClick={sendReply}
+                          disabled={replying || !replyMessage.trim()}
+                          className="bg-primary-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-60"
+                        >
+                          {replying ? 'Sending...' : 'Send Reply'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="bg-white rounded-lg shadow p-12 text-center text-gray-400">
