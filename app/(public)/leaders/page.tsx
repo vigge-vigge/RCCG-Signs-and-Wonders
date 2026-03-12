@@ -74,7 +74,7 @@ export default function LeadersPage() {
               <div className="md:w-2/3 p-8 md:p-12">
                 <div className="mb-4">
                   <span className="text-primary-600 font-semibold text-sm uppercase tracking-wide">
-                    Pastor in Charge of Zone 3 Europe Mainland Region 3
+                    Pastor in Charge of Zone 3 Europe Mainland Region 7
                   </span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-navy-900 mb-6">
