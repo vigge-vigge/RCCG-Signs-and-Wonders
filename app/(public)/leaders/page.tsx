@@ -91,7 +91,7 @@ export default function LeadersPage() {
                     Pastor Akinyemi Akande is the Shepherd leading the people of God in RCCG Signs and Wonders Jönköping to the Kingdom of God. God directed him to lead his people, as a missionary within Nigeria, and then to Sweden; afterwards blessing the works of his hands just as Joshua 1:8 said.
                   </p>
                   <p>
-                    He is happily married to Deaconess Rebecca Folasade Akande and blessed with 3 children; Esther, Victor and Emmanuel.
+                    He is an happily married to Pastor Rebecca Folasade Akande and blessed with 3 children; Esther, Victor and Emmanuel.
                   </p>
                   <p className="font-semibold text-navy-800">
                     The family of God is working towards showing people THE LIGHT WHICH IS THE WAY (JESUS CHRIST) while growing and drawing people into the Kingdom of Heaven.
