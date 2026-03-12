@@ -189,19 +189,6 @@ export default function PhotosPage() {
           </div>
         )}
 
-        {/* Admin Note */}
-        <div className="mt-12 bg-primary-50 border border-primary-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-navy-900 mb-2">
-            📸 For Administrators
-          </h3>
-          <p className="text-gray-700">
-            To create new photo albums and upload photos, please log in to the{' '}
-            <Link href="/admin/login" className="text-primary-700 font-semibold hover:text-primary-800">
-              admin dashboard
-            </Link>
-            . You can organize photos by date, create weekly service albums, or special event collections.
-          </p>
-        </div>
       </div>
     </div>
   );

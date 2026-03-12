@@ -102,7 +102,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-serif font-bold mb-2">Wednesday Bible Study</h3>
-              <p className="text-gray-600">18:00 - 19:30</p>
+              <p className="text-gray-600">18:00 - 19:00</p>
             </div>
             <div className="bg-white p-8 rounded-lg shadow-md text-center">
               <div className="text-primary-600 mb-4">
