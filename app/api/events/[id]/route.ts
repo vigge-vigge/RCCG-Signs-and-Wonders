@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticatedRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await isAuthenticatedRequest(request))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     await prisma.event.delete({
       where: { id: params.id },
@@ -28,9 +24,6 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  if (!(await isAuthenticatedRequest(request))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const body = await request.json();
     const { title, description, date, time, location, imageUrl } = body;

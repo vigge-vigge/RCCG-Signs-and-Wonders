@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticatedRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // POST /api/albums/[id]/photos - Add photos to album (admin only)
@@ -7,9 +6,6 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  if (!(await isAuthenticatedRequest(request))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const albumId = parseInt(params.id);
     const body = await request.json();

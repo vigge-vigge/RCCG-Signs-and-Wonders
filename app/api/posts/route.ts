@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAuthenticatedRequest } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 // GET /api/posts - Get all testimonies and news
@@ -27,9 +26,6 @@ export async function GET(request: Request) {
 
 // POST /api/posts - Create new testimony or news (admin only)
 export async function POST(request: Request) {
-  if (!(await isAuthenticatedRequest(request))) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
   try {
     const body = await request.json();
     const { title, content, type, author, imageUrl } = body;
