@@ -148,21 +148,7 @@ export default function Sermons() {
       </section>
       {/* Sermon modal popup */}
       {showSermonPopup && sermons && sermons.length > 0 && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowSermonPopup(false)} />
-          <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6 z-70">
-            <div className="flex justify-between items-start">
-              <h3 className="text-2xl font-semibold">{sermons[0].title}</h3>
-              <button onClick={() => setShowSermonPopup(false)} className="text-gray-500">Close</button>
-            </div>
-            <p className="mt-4 text-gray-700">{sermons[0].description}</p>
-            {sermons[0].videoUrl && (
-              <a href={sermons[0].videoUrl} target="_blank" rel="noreferrer" className="mt-4 inline-block text-primary-600">
-                Watch video
-              </a>
-            )}
-          </div>
-        </div>
+        {/* No modal: Recent Sermons are accessible via the Media header menu or the main sermons section */}
       )}
     </div>
   );

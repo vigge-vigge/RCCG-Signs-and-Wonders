@@ -18,6 +18,7 @@ export default function PhotosPage() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<'all' | 'weekly' | 'special'>('all');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const fetchAlbums = useCallback(async () => {
     try {
@@ -44,16 +45,30 @@ export default function PhotosPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">Photo Gallery</h1>
-              <p className="text-xl text-primary-200">
-                Capturing moments of faith and fellowship
-              </p>
+              <p className="text-xl text-primary-200">Capturing moments of faith and fellowship</p>
             </div>
-            <Link
-              href="/media"
-              className="mt-4 md:mt-0 inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-            >
-              Back to Media
-            </Link>
+            <div className="mt-4 md:mt-0 flex items-center gap-3">
+              <Link
+                href="/media"
+                className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+              >
+                Back to Media
+              </Link>
+              <div className="relative">
+                <button
+                  onClick={() => setMenuOpen((s) => !s)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-primary-700 rounded-lg border"
+                >
+                  Menu
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-44 bg-white rounded shadow-md py-2">
+                    <a href="/sermons" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Recent Sermons</a>
+                    <a href="/media/photos" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Photo Gallery</a>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
