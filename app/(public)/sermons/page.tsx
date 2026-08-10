@@ -27,7 +27,6 @@ export default function Sermons() {
     fetchSermons();
   }, []);
 
-  const [showSermonPopup, setShowSermonPopup] = useState(false);
 
   const fetchSermons = async () => {
     try {
@@ -59,29 +58,26 @@ export default function Sermons() {
         <PhotosPage />
       </section>
 
-      {/* Small Recent Sermon popup (replaces previous photo section) */}
-      <div className="fixed top-28 right-6 z-50">
-        <div className="bg-white rounded-lg shadow-lg w-80 p-4">
-          <div className="flex items-start justify-between">
-            <div>
-              <h4 className="text-lg font-semibold">Recent Sermon</h4>
+      {/* Compact Recent Sermons header (swapped into the small banner area) */}
+      <section className="py-8 bg-primary-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="text-white mb-4 md:mb-0">
+              <h3 className="text-2xl font-serif font-bold mb-2">Recent Sermons</h3>
               {sermons && sermons.length > 0 ? (
-                <p className="text-sm text-gray-600 mt-1">{sermons[0].title}</p>
+                <p className="text-primary-100">{sermons[0].title}</p>
               ) : (
-                <p className="text-sm text-gray-500 mt-1">No sermons yet</p>
+                <p className="text-primary-100">No sermons available yet</p>
               )}
             </div>
-            <button
-              onClick={() => setShowSermonPopup(true)}
-              className="ml-4 bg-primary-600 text-white px-3 py-1 rounded"
-            >
-              Open
-            </button>
+            <a href="#recent-sermons" className="bg-white text-primary-700 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
+              View Sermons
+            </a>
           </div>
         </div>
-      </div>
+      </section>
 
-      <section className="py-16 bg-gray-50">
+      <section id="recent-sermons" className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-serif font-bold text-gray-900 mb-8">Recent Sermons</h2>
           {loading ? (
