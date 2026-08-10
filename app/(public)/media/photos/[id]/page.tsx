@@ -185,11 +185,6 @@ export default function AlbumDetailPage() {
                 className="object-contain"
               />
             </div>
-            {album.photos[selectedPhoto].caption && (
-              <p className="text-white text-center mt-4 text-lg">
-                {album.photos[selectedPhoto].caption}
-              </p>
-            )}
           </div>
         </div>
       )}
