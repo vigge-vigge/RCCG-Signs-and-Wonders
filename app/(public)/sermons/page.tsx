@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Hero from '../../components/Hero';
 import Card from '../../components/Card';
+import PhotosPage from '../media/photos/page';
 import Link from 'next/link';
 
 type Sermon = {
@@ -25,6 +26,8 @@ export default function Sermons() {
   useEffect(() => {
     fetchSermons();
   }, []);
+
+  const [showSermonPopup, setShowSermonPopup] = useState(false);
 
   const fetchSermons = async () => {
     try {
@@ -51,23 +54,32 @@ export default function Sermons() {
         height="medium"
       />
 
-      {/* Photos Section Link */}
-      <section className="py-8 bg-primary-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="text-white mb-4 md:mb-0">
-              <h3 className="text-2xl font-serif font-bold mb-2">Photo Gallery</h3>
-              <p className="text-primary-100">Browse our collection of photos from services and events</p>
+      {/* Photo gallery as main content */}
+      <section className="bg-gradient-to-b from-white to-primary-50">
+        <PhotosPage />
+      </section>
+
+      {/* Small Recent Sermon popup (replaces previous photo section) */}
+      <div className="fixed top-28 right-6 z-50">
+        <div className="bg-white rounded-lg shadow-lg w-80 p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h4 className="text-lg font-semibold">Recent Sermon</h4>
+              {sermons && sermons.length > 0 ? (
+                <p className="text-sm text-gray-600 mt-1">{sermons[0].title}</p>
+              ) : (
+                <p className="text-sm text-gray-500 mt-1">No sermons yet</p>
+              )}
             </div>
-            <Link
-              href="/media/photos"
-              className="bg-white text-primary-700 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors"
+            <button
+              onClick={() => setShowSermonPopup(true)}
+              className="ml-4 bg-primary-600 text-white px-3 py-1 rounded"
             >
-              View Photos
-            </Link>
+              Open
+            </button>
           </div>
         </div>
-      </section>
+      </div>
 
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -138,6 +150,24 @@ export default function Sermons() {
           </a>
         </div>
       </section>
+      {/* Sermon modal popup */}
+      {showSermonPopup && sermons && sermons.length > 0 && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowSermonPopup(false)} />
+          <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6 z-70">
+            <div className="flex justify-between items-start">
+              <h3 className="text-2xl font-semibold">{sermons[0].title}</h3>
+              <button onClick={() => setShowSermonPopup(false)} className="text-gray-500">Close</button>
+            </div>
+            <p className="mt-4 text-gray-700">{sermons[0].description}</p>
+            {sermons[0].videoUrl && (
+              <a href={sermons[0].videoUrl} target="_blank" rel="noreferrer" className="mt-4 inline-block text-primary-600">
+                Watch video
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
