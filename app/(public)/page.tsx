@@ -187,14 +187,14 @@ export default function Home() {
           <p className="text-xl text-gray-300 mb-8">
             We would love to meet you! Join us this Sunday for worship and fellowship.
           </p>
-          <div className="mx-auto w-full sm:w-96 rounded-lg overflow-hidden shadow-lg">
+          <div className="mx-auto w-full sm:w-[560px] md:w-[760px] rounded-lg overflow-hidden shadow-lg">
             <iframe
               title="RCCG Signs & Wonders - Map"
               src="https://www.google.com/maps?q=Vastra%20Storgatan%2012%2C%20553%2015%20Jonkoping&output=embed"
               width="100%"
-              height="300"
+              height="420"
               style={{ border: 0 }}
-              allowFullScreen={false}
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
