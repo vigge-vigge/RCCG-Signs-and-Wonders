@@ -177,14 +177,11 @@ export default function AlbumDetailPage() {
           )}
 
           <div className="max-w-5xl max-h-full" onClick={(e) => e.stopPropagation()}>
-            <div className="relative w-full h-[80vh]">
-              <Image
-                src={album.photos[selectedPhoto].url}
-                alt={album.photos[selectedPhoto].caption || 'Photo'}
-                fill
-                className="object-contain"
-              />
-            </div>
+            <img
+              src={album.photos[selectedPhoto].url}
+              alt={album.photos[selectedPhoto].caption || 'Photo'}
+              className="mx-auto max-h-[80vh] max-w-full object-contain"
+            />
           </div>
         </div>
       )}
