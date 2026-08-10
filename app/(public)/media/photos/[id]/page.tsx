@@ -71,6 +71,8 @@ export default function AlbumDetailPage() {
     );
   }
 
+  const albumCaption = album.photos[0]?.caption;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 pt-20">
       {/* Header */}
@@ -80,6 +82,11 @@ export default function AlbumDetailPage() {
             ← Back to Gallery
           </Link>
           <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">{album.title}</h1>
+          {albumCaption && (
+            <p className="max-w-3xl text-lg text-primary-200 mb-4">
+              {albumCaption}
+            </p>
+          )}
           <div className="flex items-center gap-4 text-primary-200">
             <span className="flex items-center">
               <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,11 +126,6 @@ export default function AlbumDetailPage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                {photo.caption && (
-                  <div className="p-4">
-                    <p className="text-gray-700 text-sm">{photo.caption}</p>
-                  </div>
-                )}
               </div>
             ))}
           </div>
