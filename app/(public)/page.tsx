@@ -1,52 +1,40 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import Hero from '../components/Hero';
-import Card from '../components/Card';
 
-type Post = {
+type Album = {
   id: number;
   title: string;
-  content: string;
-  type: string;
-  author?: string;
-  imageUrl?: string;
   date: string;
+  coverImage: string | null;
+  photoCount: number;
+  eventType: string;
 };
 
 export default function Home() {
-  const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    fetchRecentPosts();
+    fetchAlbums();
   }, []);
 
-  const fetchRecentPosts = async () => {
+  const fetchAlbums = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/posts?type=all');
-      if (response.ok) {
-        const data = await response.json();
-        // Get the 3 most recent posts
-        setRecentPosts(data.slice(0, 3));
+      const res = await fetch('/api/albums?type=all&sort=newest');
+      if (res.ok) {
+        const data = await res.json();
+        setAlbums(data.slice(0, 3));
       }
-    } catch (error) {
-      console.error('Error fetching posts:', error);
+    } catch (err) {
+      console.error('Error fetching albums:', err);
     } finally {
       setLoading(false);
     }
-  };
-
-  const getPostTag = (post: Post) => {
-    if (post.type === 'testimony') return 'Testimony';
-    return 'News';
-  };
-
-  const truncateContent = (content: string, maxLength: number = 120) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + '...';
   };
 
   return (
@@ -147,31 +135,48 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recent Posts */}
+      {/* Recent Albums */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-center text-gray-900 mb-12">
-            Recent Posts & Testimonies
+            Recent Photos & Albums
           </h2>
           {loading ? (
-            <div className="text-center text-gray-500 py-8">Loading posts...</div>
-          ) : recentPosts.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">No posts available yet.</div>
+            <div className="text-center text-gray-500 py-8">Loading albums...</div>
+          ) : albums.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">No photo albums available yet.</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {recentPosts.map((post) => (
-                <Card
-                  key={post.id}
-                  title={post.title}
-                  description={truncateContent(post.content)}
-                  date={new Date(post.date).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                  tag={getPostTag(post)}
-                  href="/testimonies-news"
-                />
+              {albums.map((album) => (
+                <Link
+                  key={album.id}
+                  href={`/media/photos/${album.id}`}
+                  className="group bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+                >
+                  <div className="relative h-56 bg-gray-200">
+                    {album.coverImage ? (
+                      <Image
+                        src={album.coverImage}
+                        alt={album.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-300">
+                        <svg className="h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-navy-900 mb-1 group-hover:text-primary-600 transition-colors">{album.title}</h3>
+                    <div className="text-sm text-gray-600 flex items-center justify-between">
+                      <span>{new Date(album.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                      <span>{album.photoCount} photos</span>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
           )}
