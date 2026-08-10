@@ -46,12 +46,6 @@ export default function PhotosPage() {
               <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">Photo Gallery</h1>
               <p className="text-xl text-primary-200">Capturing moments of faith and fellowship</p>
             </div>
-            <Link
-              href="/media"
-              className="mt-4 md:mt-0 inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-            >
-              Back to Media
-            </Link>
           </div>
         </div>
       </div>
