@@ -30,6 +30,7 @@ export default function AdminPhotosPage() {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [selectedAlbumId, setSelectedAlbumId] = useState<number | null>(null);
   const [expandedAlbumId, setExpandedAlbumId] = useState<number | null>(null);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<number[]>([]);
   const [creating, setCreating] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [albumTitle, setAlbumTitle] = useState('');
@@ -129,6 +130,7 @@ export default function AdminPhotosPage() {
   const toggleAlbumPhotos = async (albumId: number) => {
     if (expandedAlbumId === albumId) {
       setExpandedAlbumId(null);
+      setSelectedPhotoIds([]);
       return;
     }
 
@@ -188,47 +190,49 @@ export default function AdminPhotosPage() {
       setUploadingPhoto(true);
       
       if (uploadMethod === 'file' && photoFiles.length > 0) {
-        // Upload files to server
-        const formData = new FormData();
-        photoFiles.forEach(file => {
-          formData.append('files', file);
-        });
-        formData.append('albumId', selectedAlbumId.toString());
+        // Upload files to server in chunks to avoid server timeout for very large batches
+        const chunkSize = 12; // upload up to 12 files per request
+        const uploadedFiles: Array<{ url: string }> = [];
 
-        const uploadResponse = await fetch('/api/upload', {
+        for (let i = 0; i < photoFiles.length; i += chunkSize) {
+          const chunk = photoFiles.slice(i, i + chunkSize);
+          const formData = new FormData();
+          chunk.forEach(file => formData.append('files', file));
+          formData.append('albumId', selectedAlbumId.toString());
+
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            alert('Failed to upload files to server');
+            setUploadingPhoto(false);
+            return;
+          }
+
+          const { files } = await uploadResponse.json();
+          uploadedFiles.push(...files);
+        }
+
+        // Bulk add uploaded files to album in a single request
+        const photosPayload = uploadedFiles.map((f: any) => ({ url: f.url, caption: photoCaption || null }));
+        const addResponse = await fetch(`/api/albums/${selectedAlbumId}/photos`, {
           method: 'POST',
-          body: formData,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photos: photosPayload }),
         });
 
-        if (!uploadResponse.ok) {
-          alert('Failed to upload files to server');
+        if (!addResponse.ok) {
+          alert('Failed to add photos to album');
           setUploadingPhoto(false);
           return;
         }
 
-        const { files } = await uploadResponse.json();
-        
-        // Add each uploaded file to the album
-        let uploadedCount = 0;
-        for (const file of files) {
-          const response = await fetch(`/api/albums/${selectedAlbumId}/photos`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              url: file.url,
-              caption: photoCaption || null,
-            }),
-          });
-
-          if (response.ok) {
-            uploadedCount++;
-          }
-        }
-        
         setPhotoFiles([]);
         setPhotoCaption('');
         setShowPhotoModal(false);
-        alert(`Successfully uploaded ${uploadedCount} photo(s)!`);
+        alert(`Successfully uploaded ${uploadedFiles.length} photo(s)!`);
         await fetchAlbums();
       } else if (uploadMethod === 'url' && photoUrl) {
         // Upload single URL
@@ -258,6 +262,30 @@ export default function AdminPhotosPage() {
       alert('Error uploading photo');
     } finally {
       setUploadingPhoto(false);
+    }
+  };
+
+  const toggleSelectPhoto = (photoId: number) => {
+    setSelectedPhotoIds(prev => prev.includes(photoId) ? prev.filter(id => id !== photoId) : [...prev, photoId]);
+  };
+
+  const handleDeleteSelectedPhotos = async (albumId: number) => {
+    if (selectedPhotoIds.length === 0) return;
+    if (!confirm(`Delete ${selectedPhotoIds.length} selected photo(s)?`)) return;
+
+    try {
+      // delete in parallel
+      await Promise.all(selectedPhotoIds.map(id => fetch(`/api/photos/${id}`, { method: 'DELETE' })));
+      setSelectedPhotoIds([]);
+      // Refresh album
+      const albumResponse = await fetch(`/api/albums/${albumId}`);
+      if (albumResponse.ok) {
+        const albumData = await albumResponse.json();
+        setAlbums(albums.map(a => a.id === albumId ? albumData : a));
+      }
+    } catch (error) {
+      console.error('Error deleting selected photos:', error);
+      alert('Error deleting selected photos');
     }
   };
 
@@ -344,17 +372,43 @@ export default function AdminPhotosPage() {
                   {/* Expanded Photos View */}
                   {expandedAlbumId === album.id && album.photos && (
                     <div className="px-6 pb-6 pt-0">
+                      <div className="flex items-center justify-between mt-4">
+                        <div />
+                        <div className="flex items-center gap-3">
+                          {selectedPhotoIds.length > 0 && (
+                            <button
+                              onClick={() => handleDeleteSelectedPhotos(album.id)}
+                              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                              Delete Selected ({selectedPhotoIds.length})
+                            </button>
+                          )}
+                          <button
+                            onClick={() => { toggleAlbumPhotos(album.id); setSelectedPhotoIds([]); }}
+                            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            Collapse
+                          </button>
+                        </div>
+                      </div>
                       {album.photos.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
                           {album.photos.map((photo) => (
                             <div key={photo.id} className="relative group">
-                              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                              <div className={`aspect-square bg-gray-100 rounded-lg overflow-hidden ${selectedPhotoIds.includes(photo.id) ? 'ring-4 ring-primary-500' : ''}`}>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={photo.url}
                                   alt={photo.caption || 'Photo'}
                                   className="w-full h-full object-cover"
                                 />
+                                <label className="absolute top-2 left-2 bg-white bg-opacity-80 rounded-full p-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedPhotoIds.includes(photo.id)}
+                                    onChange={() => toggleSelectPhoto(photo.id)}
+                                  />
+                                </label>
                               </div>
                               {photo.caption && (
                                 <p className="text-xs text-gray-600 mt-1 line-clamp-2">{photo.caption}</p>
@@ -484,7 +538,7 @@ export default function AdminPhotosPage() {
       {/* Add Photos Modal */}
       {showPhotoModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
+          <div className="bg-white rounded-lg max-w-3xl w-full p-6 max-h-[90vh] overflow-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-serif font-bold text-gray-900">Add Photos</h2>
               <button

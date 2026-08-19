@@ -9,6 +9,33 @@ export async function POST(
   try {
     const albumId = parseInt(params.id);
     const body = await request.json();
+
+    // Support bulk create: { photos: [{ url, caption }, ...] }
+    if (Array.isArray(body.photos) && body.photos.length > 0) {
+      const created: any[] = [];
+      for (const p of body.photos) {
+        if (!p.url) continue;
+        const photo = await prisma.photo.create({
+          data: {
+            url: p.url,
+            caption: p.caption || null,
+            albumId,
+          }
+        });
+        created.push(photo);
+      }
+
+      // Set coverImage on the album if it doesn't have one yet
+      if (created.length > 0) {
+        await prisma.album.updateMany({
+          where: { id: albumId, coverImage: null },
+          data: { coverImage: created[0].url },
+        });
+      }
+
+      return NextResponse.json({ created }, { status: 201 });
+    }
+
     const { url, caption } = body;
 
     if (!url) {
