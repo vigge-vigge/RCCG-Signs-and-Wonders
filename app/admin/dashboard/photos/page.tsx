@@ -18,6 +18,7 @@ type Album = {
   date: string;
   eventType: 'weekly' | 'special';
   photoCount: number;
+  coverImage?: string | null;
   photos?: Photo[];
 };
 
@@ -173,6 +174,31 @@ export default function AdminPhotosPage() {
     } catch (error) {
       console.error('Error deleting photo:', error);
       alert('Error deleting photo');
+    }
+  };
+
+  const handleSetThumbnail = async (albumId: number, photoUrl: string) => {
+    try {
+      const response = await fetch(`/api/albums/${albumId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coverImage: photoUrl }),
+      });
+
+      if (response.ok) {
+        // refresh both album list and expanded album
+        await fetchAlbums();
+        const albumResponse = await fetch(`/api/albums/${albumId}`);
+        if (albumResponse.ok) {
+          const albumData = await albumResponse.json();
+          setAlbums(albums.map(a => a.id === albumId ? albumData : a));
+        }
+      } else {
+        alert('Failed to set thumbnail');
+      }
+    } catch (error) {
+      console.error('Error setting thumbnail:', error);
+      alert('Error setting thumbnail');
     }
   };
 
@@ -413,15 +439,30 @@ export default function AdminPhotosPage() {
                               {photo.caption && (
                                 <p className="text-xs text-gray-600 mt-1 line-clamp-2">{photo.caption}</p>
                               )}
-                              <button
-                                onClick={() => handleDeletePhoto(album.id, photo.id)}
-                                className="absolute top-2 right-2 bg-red-600 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
-                                title="Delete photo"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </button>
+                              <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {album.coverImage === photo.url ? (
+                                  <span className="bg-primary-600 text-white text-xs px-2 py-1 rounded">Cover</span>
+                                ) : (
+                                  <button
+                                    onClick={() => handleSetThumbnail(album.id, photo.url)}
+                                    className="bg-white p-1 rounded text-gray-700 hover:bg-gray-100"
+                                    title="Set as thumbnail"
+                                  >
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.719c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDeletePhoto(album.id, photo.id)}
+                                  className="bg-red-600 text-white p-1.5 rounded-full hover:bg-red-700"
+                                  title="Delete photo"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
